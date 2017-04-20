@@ -1,1 +1,40 @@
 # protoc -I generator/ generator/generator.proto --go_out=plugins=grpc:generator
+#sudo apt-get install golang-goprotobuf-dev
+go run client/main.go
+
+FROM golang:1.8
+
+# Copy the local package files to the container's workspace.
+ADD . /image
+
+
+# copy our application code
+RUN mkdir -p /go/src/app/uuid-client
+WORKDIR /go/src/app/uuid-client
+
+# tell the port number the container should expose
+EXPOSE 50053
+
+#export Go path
+RUN export PATH=$PATH:$GOPATH/bin
+
+# run the command to install grpc
+RUN go get google.golang.org/grpc
+
+
+# Make sure you grab the latest version
+curl -OL https://github.com/google/protobuf/releases/download/v3.2.0/protoc-3.2.0-linux-x86_64.zip
+
+# Unzip
+unzip protoc-3.2.0-linux-x86_64.zip -d protoc3
+
+# Move only protoc* to /usr/bin/
+sudo mv protoc3/bin/protoc /usr/bin/protoc
+
+#install protoc
+#RUN go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+
+RUN go run client/main.go
+
+
+
